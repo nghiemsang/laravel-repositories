@@ -1,0 +1,30 @@
+{
+    "name": "sang/repositories",
+    "description": "Laravel Repositories",
+    "keywords": ["repositories", "laravel", "Sang Nghiem"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Sang Nghiem",
+            "email": "nghiemsang94@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "require": {
+        "php": "^7.2",
+        "illuminate/support": "^6.0|^7.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Sang\\Repositories\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Sang\\Repositories\\RepositoryServiceProvider"
+            ]
+        }
+    }
+}
