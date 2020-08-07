@@ -59,17 +59,6 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
     }
 
     /**
-     * Reset Model
-     *
-     * @throws RepositoryException
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
-     */
-    public function resetModel()
-    {
-        $this->makeModel();
-    }
-
-    /**
      * Specify Model class name
      *
      * @return string
@@ -95,57 +84,14 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
     }
 
     /**
-     * Get model
+     * Reset Model
      *
-     * @return Model
+     * @throws RepositoryException
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
-    public function getModel()
+    public function resetModel()
     {
-        return $this->model;
-    }
-
-    /**
-     * Retrieve data array for populate field select
-     *
-     * @param string $column
-     * @param string|null $key
-     *
-     * @return \Illuminate\Support\Collection|array
-     */
-    public function lists($column, $key = null)
-    {
-        $this->applyCriteria();
-
-        return $this->model->lists($column, $key);
-    }
-
-    /**
-     * Retrieve data array for populate field select
-     *
-     * @param string $column
-     * @param string|null $key
-     *
-     * @return \Illuminate\Support\Collection|array
-     */
-    public function pluck($column, $key = null)
-    {
-        $this->applyCriteria();
-
-        return $this->model->pluck($column, $key);
-    }
-
-    /**
-     * Query Scope
-     *
-     * @param Closure $scope
-     *
-     * @return $this
-     */
-    public function scopeQuery(Closure $scope)
-    {
-        $this->scopeQuery = $scope;
-
-        return $this;
+        $this->makeModel();
     }
 
     /**
@@ -292,7 +238,6 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
         $this->applyCriteria();
         $this->applyScope();
 
-        $limit = is_null($limit) ? app('request')->input('limit') : $limit;
         $limit = is_null($limit) ? config('repository.pagination.limit', 15) : $limit;
 
         $results = $this->model->{$method}($limit, $columns);
@@ -700,6 +645,20 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
     public function resetCriteria()
     {
         $this->criteria = new Collection();
+
+        return $this;
+    }
+
+    /**
+     * Query Scope
+     *
+     * @param Closure $scope
+     *
+     * @return $this
+     */
+    public function scopeQuery(Closure $scope)
+    {
+        $this->scopeQuery = $scope;
 
         return $this;
     }

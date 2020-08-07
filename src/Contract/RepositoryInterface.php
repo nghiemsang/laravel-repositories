@@ -7,26 +7,6 @@ use Closure;
 interface RepositoryInterface
 {
     /**
-     * Retrieve data array for populate field select
-     *
-     * @param string $column
-     * @param string|null $key
-     *
-     * @return \Illuminate\Support\Collection|array
-     */
-    public function lists($column, $key = null);
-
-    /**
-     * Retrieve data array for populate field select
-     *
-     * @param string $column
-     * @param string|null $key
-     *
-     * @return \Illuminate\Support\Collection|array
-     */
-    public function pluck($column, $key = null);
-
-    /**
      * Sync relations
      *
      * @param $id
