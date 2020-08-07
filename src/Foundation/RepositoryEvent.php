@@ -1,5 +1,5 @@
 <?php
-namespace App\Repositories\Foundation;
+namespace Sang\Repositories\Foundation;
 
 use Illuminate\Database\Eloquent\Model;
 use Sang\Repositories\Contract\RepositoryInterface;
