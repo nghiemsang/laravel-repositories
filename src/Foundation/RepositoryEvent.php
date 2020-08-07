@@ -6,6 +6,7 @@ use Sang\Repositories\Contract\RepositoryInterface;
 
 abstract class RepositoryEvent
 {
+
     /**
      * @var Model
      */
