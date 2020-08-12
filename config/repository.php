@@ -4,15 +4,31 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Pagination Limit Default
+    | Pagination
     |--------------------------------------------------------------------------
-    |
-    | This option controls the default pagination limit
     |
     */
 
     'pagination' => [
+        /*
+        |--------------------------------------------------------------------------
+        | Pagination Limit Default
+        |--------------------------------------------------------------------------
+        |
+        | This option controls the default pagination limit
+        |
+        */
         'limit' => 15
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Sort builder table
+    |--------------------------------------------------------------------------
+    |
+    | Key attribute use sort by multiple properties
+    |
+    */
+    'sort_builder_table' => 'sort'
 
 ];
