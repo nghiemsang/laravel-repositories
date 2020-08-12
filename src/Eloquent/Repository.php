@@ -147,7 +147,7 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
         $this->resetModel();
         $this->resetScope();
 
-        return $this->parserResult($results);
+        return $results;
     }
 
     /**
@@ -163,11 +163,11 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
         $this->applyCriteria();
         $this->applyScope();
 
-        $results = $this->model->first($columns);
+        $model = $this->model->first($columns);
 
         $this->resetModel();
 
-        return $this->parserResult($results);
+        return $model;
     }
 
     /**
@@ -200,7 +200,7 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
 
         $this->resetModel();
 
-        return $this->parserResult($model);
+        return $model;
     }
 
     /**
@@ -220,7 +220,7 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
 
         $this->resetModel();
 
-        return $this->parserResult($model);
+        return $model;
     }
 
     /**
@@ -245,7 +245,7 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
 
         $this->resetModel();
 
-        return $this->parserResult($results);
+        return $results;
     }
 
     /**
@@ -280,7 +280,7 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
 
         $this->resetModel();
 
-        return $this->parserResult($model);
+        return $model;
     }
 
     /**
@@ -298,11 +298,11 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
         $this->applyCriteria();
         $this->applyScope();
 
-        $model = $this->model->where($field, '=', $value)->get($columns);
+        $results = $this->model->where($field, '=', $value)->get($columns);
 
         $this->resetModel();
 
-        return $this->parserResult($model);
+        return $results;
     }
 
     /**
@@ -321,11 +321,11 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
 
         $this->applyConditions($where);
 
-        $model = $this->model->get($columns);
+        $results = $this->model->get($columns);
 
         $this->resetModel();
 
-        return $this->parserResult($model);
+        return $results;
     }
 
     /**
@@ -343,11 +343,11 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
         $this->applyCriteria();
         $this->applyScope();
 
-        $model = $this->model->whereIn($field, $values)->get($columns);
+        $results = $this->model->whereIn($field, $values)->get($columns);
 
         $this->resetModel();
 
-        return $this->parserResult($model);
+        return $results;
     }
 
     /**
@@ -365,11 +365,11 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
         $this->applyCriteria();
         $this->applyScope();
 
-        $model = $this->model->whereNotIn($field, $values)->get($columns);
+        $results = $this->model->whereNotIn($field, $values)->get($columns);
 
         $this->resetModel();
 
-        return $this->parserResult($model);
+        return $results;
     }
 
     /**
@@ -389,7 +389,7 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
 
         event(new RepositoryCreatedEvent($this, $model));
 
-        return $this->parserResult($model);
+        return $model;
     }
 
     /**
@@ -413,7 +413,7 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
 
         event(new RepositoryUpdatedEvent($this, $model));
 
-        return $this->parserResult($model);
+        return $model;
     }
 
     /**
@@ -435,7 +435,7 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
 
         event(new RepositoryUpdatedEvent($this, $model));
 
-        return $this->parserResult($model);
+        return $model;
     }
 
     /**
@@ -621,7 +621,7 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
         $results     = $this->model->get();
         $this->resetModel();
 
-        return $this->parserResult($results);
+        return $results;
     }
 
     /**
@@ -732,14 +732,31 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
     }
 
     /**
-     * Wrapper result data
+     * Trigger static method calls to the model
      *
-     * @param $result
+     * @param $method
+     * @param $arguments
+     * @return mixed
+     * @throws RepositoryException
+     */
+    public static function __callStatic($method, $arguments)
+    {
+        return call_user_func_array([new static(), $method], $arguments);
+    }
+
+    /**
+     * Trigger method calls to the model
+     *
+     * @param string $method
+     * @param array  $arguments
      *
      * @return mixed
      */
-    public function parserResult($result)
+    public function __call($method, $arguments)
     {
-        return $result;
+        $this->applyCriteria();
+        $this->applyScope();
+
+        return call_user_func_array([$this->model, $method], $arguments);
     }
 }
