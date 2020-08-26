@@ -56,6 +56,15 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
         $this->app      = $app ?? new Application();
         $this->criteria = new Collection();
         $this->makeModel();
+        $this->boot();
+    }
+
+    /**
+     *
+     */
+    public function boot()
+    {
+        //
     }
 
     /**
