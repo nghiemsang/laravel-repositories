@@ -21,12 +21,14 @@ class SortBuilderTableCriteria implements CriteriaInterface
         if (!empty($sort)) {
             if (is_array($sort)) {
                 foreach ($sort as $key => $value) {
-                    if (in_array($key, Schema::getColumnListing($model->getTable()))) {
+                    if (in_array($key, Schema::getColumnListing($model->getModel()->getTable()))) {
                         $model = $model->orderBy($key, $value);
                     }
                 }
             }
         }
+
+        $model = $model->orderByDesc($model->getModel()->getKeyName());
 
         return $model;
     }
