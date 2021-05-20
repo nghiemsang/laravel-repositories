@@ -11,7 +11,7 @@ interface RepositoryCriteriaInterface
      *
      * @param $criteria
      *
-     * @return $this
+     * @return mixed
      */
     public function pushCriteria($criteria);
 
@@ -20,7 +20,7 @@ interface RepositoryCriteriaInterface
      *
      * @param $criteria
      *
-     * @return $this
+     * @return mixed
      */
     public function popCriteria($criteria);
 
@@ -29,7 +29,7 @@ interface RepositoryCriteriaInterface
      *
      * @return Collection
      */
-    public function getCriteria();
+    public function getCriteria(): Collection;
 
     /**
      * Find data by Criteria
@@ -45,14 +45,14 @@ interface RepositoryCriteriaInterface
      *
      * @param bool $status
      *
-     * @return $this
+     * @return mixed
      */
     public function skipCriteria($status = true);
 
     /**
      * Reset all Criteria(s)
      *
-     * @return $this
+     * @return mixed
      */
     public function resetCriteria();
 }

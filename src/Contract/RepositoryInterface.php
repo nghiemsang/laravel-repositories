@@ -3,6 +3,7 @@
 namespace Sang\Repository\Contract;
 
 use Closure;
+use Illuminate\Support\Collection;
 use Sang\Repository\Exception\RepositoryException;
 
 interface RepositoryInterface
@@ -12,18 +13,16 @@ interface RepositoryInterface
      *
      * @param string $column
      * @param string|null $key
-     *
-     * @return \Illuminate\Support\Collection|array
+     * @return array|Collection
      */
     public function lists(string $column, string $key = null);
 
     /**
      * Retrieve data array for populate field select
-     * Compatible with Laravel 5.3
+     *
      * @param string $column
      * @param string|null $key
-     *
-     * @return \Illuminate\Support\Collection|array
+     * @return array|Collection
      */
     public function pluck(string $column, string $key = null);
 
@@ -35,6 +34,8 @@ interface RepositoryInterface
      * @param $attributes
      * @param bool $detaching
      * @return mixed
+     * @throws RepositoryException
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     public function sync($id, $relation, $attributes, bool $detaching = true);
 
@@ -45,6 +46,8 @@ interface RepositoryInterface
      * @param $relation
      * @param $attributes
      * @return mixed
+     * @throws RepositoryException
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     public function syncWithoutDetaching($id, $relation, $attributes);
 
@@ -52,8 +55,9 @@ interface RepositoryInterface
      * Retrieve all data of repository
      *
      * @param array $columns
-     *
      * @return mixed
+     * @throws RepositoryException
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     public function all(array $columns = ['*']);
 
@@ -116,29 +120,32 @@ interface RepositoryInterface
      *
      * @param null $limit
      * @param array $columns
-     *
      * @return mixed
+     * @throws RepositoryException
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     public function simplePaginate($limit = null, array $columns = ['*']);
 
     /**
      * Find data by id
      *
-     * @param       $id
+     * @param $id
      * @param array $columns
-     *
      * @return mixed
+     * @throws RepositoryException
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     public function find($id, array $columns = ['*']);
 
     /**
      * Find data by field and value
      *
-     * @param       $field
-     * @param       $value
+     * @param $field
+     * @param null $value
      * @param array $columns
-     *
-     * @return mixed
+     * @return Collection|null
+     * @throws RepositoryException
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     public function findByField($field, $value, array $columns = ['*']);
 
@@ -147,8 +154,9 @@ interface RepositoryInterface
      *
      * @param array $where
      * @param array $columns
-     *
      * @return mixed
+     * @throws RepositoryException
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     public function findWhere(array $where, array $columns = ['*']);
 
@@ -158,8 +166,9 @@ interface RepositoryInterface
      * @param string $field
      * @param array $values
      * @param array $columns
-     *
      * @return mixed
+     * @throws RepositoryException
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     public function findWhereIn(string $field, array $values, array $columns = ['*']);
 
@@ -169,19 +178,21 @@ interface RepositoryInterface
      * @param string $field
      * @param array $values
      * @param array $columns
-     *
      * @return mixed
+     * @throws RepositoryException
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     public function findWhereNotIn(string $field, array $values, array $columns = ['*']);
 
     /**
      * Find data by between values in one field
      *
-     * @param       $field
+     * @param $field
      * @param array $values
-     * @param array $columns
-     *
+     * @param array|string[] $columns
      * @return mixed
+     * @throws RepositoryException
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     public function findWhereBetween($field, array $values, array $columns = ['*']);
 
@@ -189,18 +200,20 @@ interface RepositoryInterface
      * Save a new entity in repository
      *
      * @param array $attributes
-     *
      * @return mixed
+     * @throws RepositoryException
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     public function create(array $attributes);
 
     /**
      * Update a entity in repository by id
      *
-     * @param       $id
+     * @param $id
      * @param array $attributes
-     *
      * @return mixed
+     * @throws RepositoryException
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     public function update($id, array $attributes);
 
@@ -250,7 +263,7 @@ interface RepositoryInterface
      *
      * @param int $limit
      *
-     * @return $this
+     * @return mixed
      */
     public function take(int $limit);
 
@@ -267,7 +280,7 @@ interface RepositoryInterface
      *
      * @param $relations
      *
-     * @return $this
+     * @return mixed
      */
     public function with($relations);
 
@@ -277,7 +290,7 @@ interface RepositoryInterface
      * @param string $relation
      * @param closure $closure
      *
-     * @return $this
+     * @return mixed
      */
     public function whereHas(string $relation, Closure $closure);
 
@@ -285,7 +298,7 @@ interface RepositoryInterface
      * Add subselect queries to count the relations.
      *
      * @param mixed $relations
-     * @return $this
+     * @return mixed
      */
     public function withCount($relations);
 
@@ -294,7 +307,7 @@ interface RepositoryInterface
      *
      * @param array $fields
      *
-     * @return $this
+     * @return mixed
      */
     public function hidden(array $fields);
 
@@ -303,7 +316,7 @@ interface RepositoryInterface
      *
      * @param array $fields
      *
-     * @return $this
+     * @return mixed
      */
     public function visible(array $fields);
 
@@ -312,14 +325,14 @@ interface RepositoryInterface
      *
      * @param Closure $scope
      *
-     * @return $this
+     * @return mixed
      */
     public function scopeQuery(Closure $scope);
 
     /**
      * Reset Query Scope
      *
-     * @return $this
+     * @return mixed
      */
     public function resetScope();
 
@@ -327,8 +340,9 @@ interface RepositoryInterface
      * Retrieve first data of repository, or return new Entity
      *
      * @param array $attributes
-     *
      * @return mixed
+     * @throws RepositoryException
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     public function firstOrNew(array $attributes = []);
 
@@ -336,8 +350,9 @@ interface RepositoryInterface
      * Retrieve first data of repository, or create new Entity
      *
      * @param array $attributes
-     *
      * @return mixed
+     * @throws RepositoryException
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     public function firstOrCreate(array $attributes = []);
 }

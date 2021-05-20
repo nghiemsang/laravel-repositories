@@ -11,7 +11,7 @@ interface CacheableInterface
      *
      * @param CacheRepository $repository
      *
-     * @return $this
+     * @return mixed
      */
     public function setCacheRepository(CacheRepository $repository);
 
@@ -20,7 +20,7 @@ interface CacheableInterface
      *
      * @return CacheRepository
      */
-    public function getCacheRepository();
+    public function getCacheRepository(): CacheRepository;
 
     /**
      * Get Cache key for the method
@@ -30,14 +30,14 @@ interface CacheableInterface
      *
      * @return string
      */
-    public function getCacheKey($method, $args = null);
+    public function getCacheKey($method, $args = null): string;
 
     /**
      * Get cache minutes
      *
      * @return int
      */
-    public function getCacheMinutes();
+    public function getCacheMinutes(): int;
 
 
     /**
@@ -45,7 +45,7 @@ interface CacheableInterface
      *
      * @param bool $status
      *
-     * @return $this
+     * @return mixed
      */
     public function skipCache(bool $status = true);
 }

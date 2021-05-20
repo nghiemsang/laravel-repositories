@@ -605,7 +605,7 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
      * @param $relation
      * @return $this
      */
-    public function has($relation)
+    public function has($relation): self
     {
         $this->model = $this->model->has($relation);
 
@@ -616,9 +616,9 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
      * Load relations
      *
      * @param $relations
-     * @return $this|RepositoryInterface
+     * @return $this
      */
-    public function with($relations)
+    public function with($relations): self
     {
         $this->model = $this->model->with($relations);
 
@@ -629,9 +629,9 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
      * Add subselect queries to count the relations.
      *
      * @param mixed $relations
-     * @return $this|RepositoryInterface
+     * @return $this
      */
-    public function withCount($relations)
+    public function withCount($relations): self
     {
         $this->model = $this->model->withCount($relations);
         return $this;
@@ -642,9 +642,9 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
      *
      * @param string $relation
      * @param Closure $closure
-     * @return $this|RepositoryInterface
+     * @return $this
      */
-    public function whereHas(string $relation, Closure $closure)
+    public function whereHas(string $relation, Closure $closure): self
     {
         $this->model = $this->model->whereHas($relation, $closure);
 
@@ -655,9 +655,9 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
      * Set hidden fields
      *
      * @param array $fields
-     * @return $this|RepositoryInterface
+     * @return $this
      */
-    public function hidden(array $fields)
+    public function hidden(array $fields): self
     {
         $this->model->setHidden($fields);
 
@@ -669,9 +669,9 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
      *
      * @param string $column
      * @param string $direction
-     * @return $this|RepositoryInterface
+     * @return $this
      */
-    public function orderBy(string $column, string $direction = 'asc')
+    public function orderBy(string $column, string $direction = 'asc'): self
     {
         $this->model = $this->model->orderBy($column, $direction);
 
@@ -685,7 +685,7 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
      *
      * @return $this
      */
-    public function take(int $limit)
+    public function take(int $limit): self
     {
         // Internally `take` is an alias to `limit`
         $this->model = $this->model->limit($limit);
@@ -697,9 +697,9 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
      * Set visible fields
      *
      * @param array $fields
-     * @return $this|RepositoryInterface
+     * @return $this
      */
-    public function visible(array $fields)
+    public function visible(array $fields): self
     {
         $this->model->setVisible($fields);
 
@@ -710,10 +710,10 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
      * Push Criteria for filter the query
      *
      * @param $criteria
-     * @return $this|RepositoryCriteriaInterface
+     * @return $this
      * @throws RepositoryException
      */
-    public function pushCriteria($criteria)
+    public function pushCriteria($criteria): self
     {
         if (is_string($criteria)) {
             $criteria = new $criteria;
@@ -730,9 +730,9 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
      * Pop Criteria
      *
      * @param $criteria
-     * @return $this|RepositoryCriteriaInterface
+     * @return $this
      */
-    public function popCriteria($criteria)
+    public function popCriteria($criteria): self
     {
         $this->criteria = $this->criteria->reject(function ($item) use ($criteria) {
             if (is_object($item) && is_string($criteria)) {
@@ -754,7 +754,7 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
      *
      * @return Collection
      */
-    public function getCriteria()
+    public function getCriteria(): Collection
     {
         return $this->criteria;
     }
@@ -780,9 +780,9 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
      * Skip Criteria
      *
      * @param bool $status
-     * @return $this|RepositoryCriteriaInterface
+     * @return $this
      */
-    public function skipCriteria($status = true)
+    public function skipCriteria($status = true): self
     {
         $this->skipCriteria = $status;
 
@@ -792,9 +792,9 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
     /**
      * Reset all Criteria
      *
-     * @return $this|RepositoryCriteriaInterface
+     * @return $this
      */
-    public function resetCriteria()
+    public function resetCriteria(): self
     {
         $this->criteria = new Collection();
 
@@ -808,7 +808,7 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
      *
      * @return $this
      */
-    public function scopeQuery(Closure $scope)
+    public function scopeQuery(Closure $scope): self
     {
         $this->scopeQuery = $scope;
 
@@ -818,9 +818,9 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
     /**
      * Reset Query Scope
      *
-     * @return $this|RepositoryInterface
+     * @return $this
      */
-    public function resetScope()
+    public function resetScope(): self
     {
         $this->scopeQuery = null;
 
@@ -832,7 +832,7 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
      *
      * @return $this
      */
-    protected function applyScope()
+    protected function applyScope(): self
     {
         if (isset($this->scopeQuery) && is_callable($this->scopeQuery)) {
             $callback    = $this->scopeQuery;
@@ -847,7 +847,7 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
      *
      * @return $this
      */
-    protected function applyCriteria()
+    protected function applyCriteria(): self
     {
         if ($this->skipCriteria === true) {
             return $this;
@@ -888,8 +888,7 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
      *
      * @param $method
      * @param $arguments
-     * @return mixed
-     * @throws RepositoryException
+     * @return false|mixed
      */
     public static function __callStatic($method, $arguments)
     {
@@ -901,8 +900,7 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
      *
      * @param string $method
      * @param array $arguments
-     *
-     * @return mixed
+     * @return false|mixed
      */
     public function __call(string $method, array $arguments)
     {
