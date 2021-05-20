@@ -3,7 +3,6 @@
 namespace Sang\Repository\Contract;
 
 use Closure;
-use Sang\Repository\Eloquent\Repository;
 use Sang\Repository\Exception\RepositoryException;
 
 interface RepositoryInterface
