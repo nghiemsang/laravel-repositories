@@ -1,18 +1,11 @@
 <?php
 
-namespace Sang\Repository;
+namespace Sang\Repository\Provider;
 
 use Illuminate\Support\ServiceProvider;
 
-class RepositoryServiceProvider extends ServiceProvider
+class EventServiceProvider extends ServiceProvider
 {
-    /**
-     * Indicates if loading of the provider is deferred.
-     *
-     * @var bool
-     */
-    protected $defer = false;
-
     /**
      * The event handler mappings for the application.
      *
@@ -47,12 +40,6 @@ class RepositoryServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->publishes([
-            __DIR__ . '/../config/repository.php' => config_path('repository.php'),
-        ], 'config');
-
-        $this->mergeConfigFrom(__DIR__ . '/../config/repository.php', 'repository');
-
         $events = app('events');
 
         foreach ($this->listen as $event => $Listener) {
