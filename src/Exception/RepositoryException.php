@@ -1,6 +1,6 @@
 <?php
 
-namespace Sang\Repositories\Exception;
+namespace Sang\Repository\Exception;
 
 use Exception;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Sang\Repositories;
+namespace Sang\Repository;
 
 use Illuminate\Support\ServiceProvider;
 

@@ -1,46 +1,49 @@
 <?php
 
-namespace Sang\Repositories\Eloquent;
+namespace Sang\Repository\Eloquent;
 
 use Closure;
 use Illuminate\Container\Container as Application;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
-use Sang\Repositories\Contract\CriteriaInterface;
-use Sang\Repositories\Contract\RepositoryCriteriaInterface;
-use Sang\Repositories\Contract\RepositoryInterface;
-use Sang\Repositories\Event\RepositoryCreatedEvent;
-use Sang\Repositories\Event\RepositoryDeletedEvent;
-use Sang\Repositories\Event\RepositoryUpdatedEvent;
-use Sang\Repositories\Exception\RepositoryException;
+use Sang\Repository\Contract\CriteriaInterface;
+use Sang\Repository\Contract\RepositoryCriteriaInterface;
+use Sang\Repository\Contract\RepositoryInterface;
+use Sang\Repository\Event\RepositoryEntityCreated;
+use Sang\Repository\Event\RepositoryEntityCreating;
+use Sang\Repository\Event\RepositoryEntityDeleted;
+use Sang\Repository\Event\RepositoryEntityDeleting;
+use Sang\Repository\Event\RepositoryEntityUpdated;
+use Sang\Repository\Event\RepositoryEntityUpdating;
+use Sang\Repository\Exception\RepositoryException;
 
 abstract class Repository implements RepositoryInterface, RepositoryCriteriaInterface
 {
     /**
-     * @var Application
+     * @var Application $app
      */
     protected $app;
 
     /**
-     * @var Model
+     * @var Model $model
      */
     protected $model;
 
     /**
      * Collection of Criteria
      *
-     * @var Collection
+     * @var Collection $criteria
      */
     protected $criteria;
 
     /**
-     * @var bool
+     * @var bool $skipCriteria
      */
     protected $skipCriteria = false;
 
     /**
-     * @var \Closure
+     * @var \Closure $scopeQuery
      */
     protected $scopeQuery = null;
 
@@ -104,6 +107,36 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
     }
 
     /**
+     * Retrieve data array for populate field select
+     *
+     * @param string $column
+     * @param string|null $key
+     *
+     * @return \Illuminate\Support\Collection|array
+     */
+    public function lists(string $column, string $key = null)
+    {
+        $this->applyCriteria();
+
+        return $this->model->lists($column, $key);
+    }
+
+    /**
+     * Retrieve data array for populate field select
+     * Compatible with Laravel 5.3
+     * @param string $column
+     * @param string|null $key
+     *
+     * @return \Illuminate\Support\Collection|array
+     */
+    public function pluck(string $column, string $key = null)
+    {
+        $this->applyCriteria();
+
+        return $this->model->pluck($column, $key);
+    }
+
+    /**
      * Sync relations
      *
      * @param $id
@@ -114,7 +147,7 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
      * @throws RepositoryException
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
-    public function sync($id, $relation, $attributes, $detaching = true)
+    public function sync($id, $relation, $attributes, bool $detaching = true)
     {
         return $this->find($id)->{$relation}()->sync($attributes, $detaching);
     }
@@ -142,7 +175,7 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
      * @throws RepositoryException
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
-    public function all($columns = ['*'])
+    public function all(array $columns = ['*'])
     {
         $this->applyCriteria();
         $this->applyScope();
@@ -160,6 +193,32 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
     }
 
     /**
+     * Count results of repository
+     *
+     * @param array $where
+     * @param string $columns
+     * @return mixed
+     * @throws RepositoryException
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     */
+    public function count(array $where = [], string $columns = '*')
+    {
+        $this->applyCriteria();
+        $this->applyScope();
+
+        if ($where) {
+            $this->applyConditions($where);
+        }
+
+        $result = $this->model->count($columns);
+
+        $this->resetModel();
+        $this->resetScope();
+
+        return $result;
+    }
+
+    /**
      * Retrieve first data of repository
      *
      * @param array $columns
@@ -167,7 +226,7 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
      * @throws RepositoryException
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
-    public function first($columns = ['*'])
+    public function first(array $columns = ['*'])
     {
         $this->applyCriteria();
         $this->applyScope();
@@ -187,7 +246,7 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
      * @throws RepositoryException
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
-    public function get($columns = ['*'])
+    public function get(array $columns = ['*'])
     {
         return $this->all($columns);
     }
@@ -233,6 +292,23 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
     }
 
     /**
+     * Retrieve data of repository with limit applied
+     *
+     * @param int $limit
+     * @param array|string[] $columns
+     * @return mixed
+     * @throws RepositoryException
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     */
+    public function limit(int $limit, array $columns = ['*'])
+    {
+        // Shortcut to all with `limit` applied on query via `take`
+        $this->take($limit);
+
+        return $this->all($columns);
+    }
+
+    /**
      * Retrieve all data of repository, paginated
      *
      * @param null $limit
@@ -242,7 +318,7 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
      * @throws RepositoryException
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
-    public function paginate($limit = null, $columns = ['*'], $method = "paginate")
+    public function paginate($limit = null, array $columns = ['*'], string $method = 'paginate')
     {
         $this->applyCriteria();
         $this->applyScope();
@@ -266,7 +342,7 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
      * @throws RepositoryException
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
-    public function simplePaginate($limit = null, $columns = ['*'])
+    public function simplePaginate($limit = null, array $columns = ['*'])
     {
         return $this->paginate($limit, $columns, 'simplePaginate');
     }
@@ -280,7 +356,7 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
      * @throws RepositoryException
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
-    public function find($id, $columns = ['*'])
+    public function find($id, array $columns = ['*'])
     {
         $this->applyCriteria();
         $this->applyScope();
@@ -302,7 +378,7 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
      * @throws RepositoryException
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
-    public function findByField($field, $value = null, $columns = ['*'])
+    public function findByField($field, $value, array $columns = ['*'])
     {
         $this->applyCriteria();
         $this->applyScope();
@@ -323,7 +399,7 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
      * @throws RepositoryException
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
-    public function findWhere(array $where, $columns = ['*'])
+    public function findWhere(array $where, array $columns = ['*'])
     {
         $this->applyCriteria();
         $this->applyScope();
@@ -369,7 +445,7 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
      * @throws RepositoryException
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
-    public function findWhereNotIn(string $field, array $values, $columns = ['*'])
+    public function findWhereNotIn(string $field, array $values, array $columns = ['*'])
     {
         $this->applyCriteria();
         $this->applyScope();
@@ -382,6 +458,26 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
     }
 
     /**
+     * Find data by between values in one field
+     *
+     * @param $field
+     * @param array $values
+     * @param array|string[] $columns
+     * @return mixed
+     * @throws RepositoryException
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     */
+    public function findWhereBetween($field, array $values, array $columns = ['*'])
+    {
+        $this->applyCriteria();
+        $this->applyScope();
+        $model = $this->model->whereBetween($field, $values)->get($columns);
+        $this->resetModel();
+
+        return $model;
+    }
+
+    /**
      * Save a new entity in repository
      *
      * @param array $attributes
@@ -391,12 +487,13 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
      */
     public function create(array $attributes)
     {
+        event(new RepositoryEntityCreating($this, $attributes));
         $model = $this->model->newInstance($attributes);
         $model->save();
 
         $this->resetModel();
 
-        event(new RepositoryCreatedEvent($this, $model));
+        event(new RepositoryEntityCreated($this, $model));
 
         return $model;
     }
@@ -415,12 +512,15 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
         $this->applyScope();
 
         $model = $this->model->findOrFail($id);
+
+        event(new RepositoryEntityUpdating($this, $model));
+
         $model->fill($attributes);
         $model->save();
 
         $this->resetModel();
 
-        event(new RepositoryUpdatedEvent($this, $model));
+        event(new RepositoryEntityUpdated($this, $model));
 
         return $model;
     }
@@ -438,11 +538,13 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
     {
         $this->applyScope();
 
+        event(new RepositoryEntityCreating($this, $attributes));
+
         $model = $this->model->updateOrCreate($attributes, $values);
 
         $this->resetModel();
 
-        event(new RepositoryUpdatedEvent($this, $model));
+        event(new RepositoryEntityUpdated($this, $model));
 
         return $model;
     }
@@ -464,9 +566,35 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
 
         $this->resetModel();
 
+        event(new RepositoryEntityDeleting($this, $model));
+
         $deleted = $model->delete();
 
-        event(new RepositoryDeletedEvent($this, $originalModel));
+        event(new RepositoryEntityDeleted($this, $originalModel));
+
+        return $deleted;
+    }
+
+    /**
+     * Delete multiple entities by given criteria.
+     *
+     * @param array $where
+     * @return mixed
+     * @throws RepositoryException
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     */
+    public function deleteWhere(array $where)
+    {
+        $this->applyScope();
+        $this->applyConditions($where);
+
+        event(new RepositoryEntityDeleting($this, $this->model->getModel()));
+
+        $deleted = $this->model->delete();
+
+        event(new RepositoryEntityDeleted($this, $this->model->getModel()));
+
+        $this->resetModel();
 
         return $deleted;
     }
@@ -513,10 +641,10 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
      * Load relation with closure
      *
      * @param string $relation
-     * @param Contracts\closure $closure
+     * @param Closure $closure
      * @return $this|RepositoryInterface
      */
-    public function whereHas($relation, $closure)
+    public function whereHas(string $relation, Closure $closure)
     {
         $this->model = $this->model->whereHas($relation, $closure);
 
@@ -543,9 +671,24 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
      * @param string $direction
      * @return $this|RepositoryInterface
      */
-    public function orderBy($column, $direction = 'asc')
+    public function orderBy(string $column, string $direction = 'asc')
     {
         $this->model = $this->model->orderBy($column, $direction);
+
+        return $this;
+    }
+
+    /**
+     * Set the "limit" value of the query.
+     *
+     * @param int $limit
+     *
+     * @return $this
+     */
+    public function take(int $limit)
+    {
+        // Internally `take` is an alias to `limit`
+        $this->model = $this->model->limit($limit);
 
         return $this;
     }
@@ -757,11 +900,11 @@ abstract class Repository implements RepositoryInterface, RepositoryCriteriaInte
      * Trigger method calls to the model
      *
      * @param string $method
-     * @param array  $arguments
+     * @param array $arguments
      *
      * @return mixed
      */
-    public function __call($method, $arguments)
+    public function __call(string $method, array $arguments)
     {
         $this->applyCriteria();
         $this->applyScope();

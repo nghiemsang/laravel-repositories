@@ -1,29 +1,41 @@
 {
-    "name": "sang/repositories",
-    "description": "Laravel Repositories",
-    "keywords": ["repositories", "laravel", "Sang Nghiem"],
+    "name": "sang/repository",
+    "description": "Laravel Eloquent Repository",
+    "keywords": ["laravel", "repository", "eloquent repository"],
     "license": "MIT",
     "authors": [
         {
             "name": "Sang Nghiem",
-            "email": "nghiemsang94@gmail.com"
+            "email": "nghiemsang94@gmail.com",
+            "role": "Developer"
         }
     ],
+    "support": {
+        "email": "nghiemsang94@gmail.com"
+    },
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "php": "^7.2",
-        "illuminate/support": "^6.0|^7.0"
+        "illuminate/http": "~7.0|^8.0",
+        "illuminate/config": "~7.0|^8.0",
+        "illuminate/support": "~7.0|^8.0",
+        "illuminate/database": "~7.0|^8.0",
+        "illuminate/pagination": "~7.0|^8.0",
+        "illuminate/filesystem": "~7.0|^8.0",
+        "illuminate/validation": "~7.0|^8.0"
     },
     "autoload": {
         "psr-4": {
-            "Sang\\Repositories\\": "src/"
+            "Sang\\Repository\\": "src/"
         }
+    },
+    "config": {
+        "preferred-install": "dist"
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Sang\\Repositories\\RepositoryServiceProvider"
+                "Sang\\Repository\\RepositoryServiceProvider"
             ]
         }
     }

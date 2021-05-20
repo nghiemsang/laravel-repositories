@@ -1,24 +1,24 @@
 <?php
-namespace Sang\Repositories\Foundation;
+
+namespace Sang\Repository\Foundation;
 
 use Illuminate\Database\Eloquent\Model;
-use Sang\Repositories\Contract\RepositoryInterface;
+use Sang\Repository\Contract\RepositoryInterface;
 
 abstract class RepositoryEvent
 {
-
     /**
-     * @var Model
+     * @var Model $model
      */
     protected $model;
 
     /**
-     * @var RepositoryInterface
+     * @var RepositoryInterface $repository
      */
     protected $repository;
 
     /**
-     * @var string
+     * @var string $action
      */
     protected $action;
 
@@ -37,7 +37,7 @@ abstract class RepositoryEvent
     /**
      * @return Model
      */
-    public function getModel()
+    public function getModel(): Model
     {
         return $this->model;
     }
@@ -45,7 +45,7 @@ abstract class RepositoryEvent
     /**
      * @return RepositoryInterface
      */
-    public function getRepository()
+    public function getRepository(): RepositoryInterface
     {
         return $this->repository;
     }
@@ -53,7 +53,7 @@ abstract class RepositoryEvent
     /**
      * @return string
      */
-    public function getAction()
+    public function getAction(): string
     {
         return $this->action;
     }

@@ -1,12 +1,11 @@
 <?php
-namespace Sang\Repositories\Contract;
+
+namespace Sang\Repository\Contract;
 
 use Illuminate\Support\Collection;
 
-
 interface RepositoryCriteriaInterface
 {
-
     /**
      * Push Criteria for filter the query
      *

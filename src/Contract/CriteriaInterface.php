@@ -1,6 +1,6 @@
 <?php
 
-namespace Sang\Repositories\Contract;
+namespace Sang\Repository\Contract;
 
 interface CriteriaInterface
 {
